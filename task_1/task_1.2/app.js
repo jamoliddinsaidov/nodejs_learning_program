@@ -20,7 +20,7 @@ function convert(csvFilePath, txtFilePath) {
     .catch((error) => console.error(error))
 }
 
-const csvFilePath = join(__dirname, 'data/data.csv')
-const txtFilePath = join(__dirname, 'data/data.txt')
+const csvFilePath = join(__dirname, 'csv/data.csv')
+const txtFilePath = join(__dirname, 'csv/data.txt')
 
 convert(csvFilePath, txtFilePath)
