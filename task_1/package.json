@@ -1,18 +1,19 @@
 {
-  "name": "task_1.3",
+  "name": "task_1",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "type": "module",
   "scripts": {
-    "task1": "nodemon --exec babel-node src/task_1/app",
-    "task2": "nodemon --exec babel-node src/task_2/app"
+    "task1": "nodemon task_1.1/app",
+    "task2": "nodemon task_1.2/app",
+    "task3-1": "nodemon --exec babel-node task_1.3/src/task_1/app",
+    "task3-2": "nodemon --exec babel-node task_1.3/src/task_2/app"
   },
   "keywords": [],
-  "author": "",
+  "author": "Jamoliddin Saidov",
   "license": "ISC",
   "devDependencies": {
-    "@babel/core": "^7.20.7",
+    "@babel/core": "^7.20.12",
     "@babel/node": "^7.20.7",
     "@babel/preset-env": "^7.20.2",
     "nodemon": "^2.0.20"
