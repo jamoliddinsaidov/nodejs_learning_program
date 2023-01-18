@@ -13,3 +13,9 @@ export type User = {
   age: number
   isDeleted: boolean
 }
+
+export type UserRequestBody = {
+  login: string
+  password: string
+  age: number
+}
