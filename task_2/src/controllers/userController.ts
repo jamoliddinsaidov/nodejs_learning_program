@@ -6,6 +6,7 @@ import { User, UserRequestBody, userRequestSchema } from '../models/User.js'
 import {
   USER_CREATED_MESSAGE,
   USER_UPDATED_MESSAGE,
+  USER_DELETED_MESSAGE,
   SOMETHING_WENT_WRONG_MESSAGE,
   NO_USER_FOUND_MESSAGE,
   databaseFilePath,
@@ -89,6 +90,32 @@ export const updateUser = async (req: Request, res: Response) => {
     await fs.writeFile(databaseFilePath, JSON.stringify(users, null, 2))
 
     res.status(200).json({ message: USER_UPDATED_MESSAGE, updatedUser })
+  } catch (error) {
+    res.status(500).json({ message: SOMETHING_WENT_WRONG_MESSAGE, error: error.message })
+  }
+}
+
+export const deleteUser = async (req: Request, res: Response) => {
+  try {
+    // check if the user with the provided ID exists
+    const userId = req.params.id
+    const user = await _getUserById(userId)
+
+    if (!user) {
+      return res.status(400).json({ error: NO_USER_FOUND_MESSAGE, userId })
+    }
+
+    const data = await fs.readFile(databaseFilePath, 'utf-8')
+    const users: User[] = JSON.parse(data)
+
+    const deletedUser: User = { ...user, isDeleted: true }
+
+    const deletedUserIndex = users.findIndex((user) => user.id === deletedUser.id)
+    users[deletedUserIndex] = deletedUser
+
+    await fs.writeFile(databaseFilePath, JSON.stringify(users, null, 2))
+
+    res.status(200).json({ message: USER_DELETED_MESSAGE, deletedUser })
   } catch (error) {
     res.status(500).json({ message: SOMETHING_WENT_WRONG_MESSAGE, error: error.message })
   }
