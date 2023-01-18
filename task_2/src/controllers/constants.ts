@@ -1,0 +1,15 @@
+import path from 'path'
+import { fileURLToPath } from 'url'
+
+// paths
+const filename = fileURLToPath(import.meta.url)
+const dirname = path.dirname(filename)
+
+// path to the database folder in src
+export const databaseFilePath = path.join(dirname, '..', '..', 'src', 'database', 'users.json')
+
+// user controller constants
+export const USER_CREATED_MESSAGE = 'User is successfully created'
+
+// general message constants
+export const SOMETHING_WENT_WRONG_MESSAGE = 'Something went wrong. Please try again'
