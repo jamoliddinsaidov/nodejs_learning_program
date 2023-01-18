@@ -2,7 +2,27 @@ import { Request, Response } from 'express'
 import fs from 'fs/promises'
 import { v4 as uuidv4 } from 'uuid'
 import { User, userRequestSchema } from '../models/User.js'
-import { USER_CREATED_MESSAGE, SOMETHING_WENT_WRONG_MESSAGE, databaseFilePath } from './constants.js'
+import {
+  USER_CREATED_MESSAGE,
+  SOMETHING_WENT_WRONG_MESSAGE,
+  NO_USER_FOUND_MESSAGE,
+  databaseFilePath,
+} from './constants.js'
+
+export const getUserById = async (req: Request, res: Response) => {
+  const userId = req.params.id
+
+  const data = await fs.readFile(databaseFilePath, 'utf-8')
+  const users: User[] = JSON.parse(data)
+
+  const user = users.find((user) => user.id === userId)
+
+  if (!user) {
+    return res.status(400).json({ error: NO_USER_FOUND_MESSAGE, userId })
+  }
+
+  return res.status(200).json(user)
+}
 
 export const createUser = async (req: Request, res: Response) => {
   const { error, value } = userRequestSchema.validate(req.body)

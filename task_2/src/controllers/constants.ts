@@ -9,6 +9,7 @@ const dirname = path.dirname(filename)
 export const databaseFilePath = path.join(dirname, '..', '..', 'src', 'database', 'users.json')
 
 // user controller constants
+export const NO_USER_FOUND_MESSAGE = 'No user found matching with the provided user ID'
 export const USER_CREATED_MESSAGE = 'User is successfully created'
 
 // general message constants
