@@ -6,16 +6,16 @@ export const userRequestSchema = Joi.object({
   age: Joi.number().min(4).max(130),
 })
 
+export type UserRequestBody = {
+  login: string
+  password: string
+  age: number
+}
+
 export type User = {
   id: string
   login: string
   password: string
   age: number
   isDeleted: boolean
-}
-
-export type UserRequestBody = {
-  login: string
-  password: string
-  age: number
 }

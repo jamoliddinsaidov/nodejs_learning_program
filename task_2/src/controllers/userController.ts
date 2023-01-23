@@ -11,6 +11,7 @@ import {
   NO_USER_FOUND_MESSAGE,
   databaseFilePath,
 } from './constants.js'
+import { jsonStringfy } from '../utils.js'
 
 export const getUserById = async (req: Request, res: Response) => {
   try {
@@ -44,10 +45,10 @@ export const createUser = async (req: Request, res: Response) => {
   }
 
   try {
-    const data = await fs.readFile(databaseFilePath, 'utf-8')
-    const users = JSON.stringify([...JSON.parse(data), user], null, 2)
+    const existingUsers = await _getUsers();
+    const newUsers = jsonStringfy([...existingUsers, user])
 
-    await fs.writeFile(databaseFilePath, users)
+    await fs.writeFile(databaseFilePath, newUsers)
 
     res.status(201).json({ message: USER_CREATED_MESSAGE, user })
   } catch (error) {
@@ -73,9 +74,7 @@ export const updateUser = async (req: Request, res: Response) => {
       return res.status(400).json({ error: errorMessage })
     }
 
-    const data = await fs.readFile(databaseFilePath, 'utf-8')
-    const users: User[] = JSON.parse(data)
-
+    const users = await _getUsers();
     const updatedUser: User = {
       id: user.id,
       login: value.login,
@@ -87,7 +86,7 @@ export const updateUser = async (req: Request, res: Response) => {
     const updatedUserIndex = users.findIndex((user) => user.id === updatedUser.id)
     users[updatedUserIndex] = updatedUser
 
-    await fs.writeFile(databaseFilePath, JSON.stringify(users, null, 2))
+    await fs.writeFile(databaseFilePath, jsonStringfy(users))
 
     res.status(200).json({ message: USER_UPDATED_MESSAGE, updatedUser })
   } catch (error) {
@@ -105,15 +104,13 @@ export const deleteUser = async (req: Request, res: Response) => {
       return res.status(400).json({ error: NO_USER_FOUND_MESSAGE, userId })
     }
 
-    const data = await fs.readFile(databaseFilePath, 'utf-8')
-    const users: User[] = JSON.parse(data)
-
+    const users = await _getUsers()
     const deletedUser: User = { ...user, isDeleted: true }
 
     const deletedUserIndex = users.findIndex((user) => user.id === deletedUser.id)
     users[deletedUserIndex] = deletedUser
 
-    await fs.writeFile(databaseFilePath, JSON.stringify(users, null, 2))
+    await fs.writeFile(databaseFilePath, jsonStringfy(users))
 
     res.status(200).json({ message: USER_DELETED_MESSAGE, deletedUser })
   } catch (error) {
@@ -121,9 +118,28 @@ export const deleteUser = async (req: Request, res: Response) => {
   }
 }
 
-const _getUserById = async (userId: string) => {
+export const getAutoSuggestUsers = async (req: Request, res: Response) => {
+  const { login, limit = 10 } = req.body
+
+  const searchRegex = new RegExp(login, 'gi');
+
+  const users = await _getUsers();
+  let suggestedUsers = users.filter((user) => user.login.match(searchRegex));
+  
+  if (suggestedUsers.length > limit) {
+    suggestedUsers.length = limit
+  }
+
+  res.status(500).json({ suggestedUsers })
+}
+
+const _getUsers = async () => {
   const data = await fs.readFile(databaseFilePath, 'utf-8')
-  const users: User[] = JSON.parse(data)
+  return JSON.parse(data) as User[]
+}
+
+const _getUserById = async (userId: string) => {
+  const users = await _getUsers()
 
   return users.find((user) => user.id === userId)
 }
