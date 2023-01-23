@@ -11,7 +11,7 @@ import {
   NO_USER_FOUND_MESSAGE,
   databaseFilePath,
 } from './constants.js'
-import { jsonStringfy } from '../utils.js'
+import { jsonStringfy } from '../utils/jsonStringfy.js'
 
 export const getUserById = async (req: Request, res: Response) => {
   try {
