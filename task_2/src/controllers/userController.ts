@@ -45,7 +45,7 @@ export const createUser = async (req: Request, res: Response) => {
   }
 
   try {
-    const existingUsers = await _getUsers();
+    const existingUsers = await _getUsers()
     const newUsers = jsonStringfy([...existingUsers, user])
 
     await fs.writeFile(databaseFilePath, newUsers)
@@ -74,7 +74,7 @@ export const updateUser = async (req: Request, res: Response) => {
       return res.status(400).json({ error: errorMessage })
     }
 
-    const users = await _getUsers();
+    const users = await _getUsers()
     const updatedUser: User = {
       id: user.id,
       login: value.login,
@@ -119,18 +119,22 @@ export const deleteUser = async (req: Request, res: Response) => {
 }
 
 export const getAutoSuggestUsers = async (req: Request, res: Response) => {
-  const { login, limit = 10 } = req.body
+  try {
+    const { login, limit = 10 } = req.body
 
-  const searchRegex = new RegExp(login, 'gi');
+    const searchRegex = new RegExp(login, 'gi')
 
-  const users = await _getUsers();
-  let suggestedUsers = users.filter((user) => user.login.match(searchRegex));
-  
-  if (suggestedUsers.length > limit) {
-    suggestedUsers.length = limit
+    const users = await _getUsers()
+    let suggestedUsers = users.filter((user) => user.login.match(searchRegex))
+
+    if (suggestedUsers.length > limit) {
+      suggestedUsers.length = limit
+    }
+
+    res.status(500).json({ suggestedUsers })
+  } catch (error) {
+    res.status(500).json({ message: SOMETHING_WENT_WRONG_MESSAGE, error: error.message })
   }
-
-  res.status(500).json({ suggestedUsers })
 }
 
 const _getUsers = async () => {
