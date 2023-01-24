@@ -9,6 +9,8 @@ import {
   USER_DELETED_MESSAGE,
   SOMETHING_WENT_WRONG_MESSAGE,
   NO_USER_FOUND_MESSAGE,
+  NO_LOGIN_SUBSTRING_MESSAGE,
+  NO_USERS_FOUND_MATCHING_LOGIN_SUBSTRING_MESSAGE,
   databaseFilePath,
 } from './constants.js'
 import { jsonStringfy } from '../utils/jsonStringfy.js'
@@ -120,18 +122,26 @@ export const deleteUser = async (req: Request, res: Response) => {
 
 export const getAutoSuggestUsers = async (req: Request, res: Response) => {
   try {
-    const { login, limit = 10 } = req.body
+    const { loginSubstring, limit = 10 } = req.body
 
-    const searchRegex = new RegExp(login, 'gi')
+    if (!loginSubstring) {
+      return res.status(400).json({ error: NO_LOGIN_SUBSTRING_MESSAGE })
+    }
+
+    const searchRegex = new RegExp(loginSubstring, 'gi')
 
     const users = await _getUsers()
     let suggestedUsers = users.filter((user) => user.login.match(searchRegex))
+
+    if (!suggestedUsers.length) {
+      return res.status(404).json({ error: NO_USERS_FOUND_MATCHING_LOGIN_SUBSTRING_MESSAGE, loginSubstring })
+    }
 
     if (suggestedUsers.length > limit) {
       suggestedUsers.length = limit
     }
 
-    res.status(500).json({ suggestedUsers })
+    res.status(200).json({ suggestedUsers })
   } catch (error) {
     res.status(500).json({ message: SOMETHING_WENT_WRONG_MESSAGE, error: error.message })
   }
