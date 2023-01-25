@@ -16,6 +16,7 @@ export const USER_DELETED_MESSAGE = 'User is successfully deleted'
 export const NO_LOGIN_SUBSTRING_MESSAGE = 'Please provide a valid loginSubstring'
 export const NO_USERS_FOUND_MATCHING_LOGIN_SUBSTRING_MESSAGE =
   'No users found matching with the provided user loginSubstring'
+export const LOGIN_NOT_AVAILABLE_MESSAGE = 'The login you provided is not available. Please try another one'
 
 // general message constants
 export const SOMETHING_WENT_WRONG_MESSAGE = 'Something went wrong. Please try again'

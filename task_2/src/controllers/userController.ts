@@ -11,6 +11,7 @@ import {
   NO_USER_FOUND_MESSAGE,
   NO_LOGIN_SUBSTRING_MESSAGE,
   NO_USERS_FOUND_MATCHING_LOGIN_SUBSTRING_MESSAGE,
+  LOGIN_NOT_AVAILABLE_MESSAGE,
   databaseFilePath,
 } from './constants.js'
 import { jsonStringfy } from '../utils/jsonStringfy.js'
@@ -21,12 +22,23 @@ export const getUserById = async (req: Request, res: Response) => {
     const user = await _getUserById(userId)
 
     if (!user) {
-      return res.status(400).json({ error: NO_USER_FOUND_MESSAGE, userId })
+      return res.status(400).json({
+        success: false,
+        message: NO_USER_FOUND_MESSAGE,
+        error: userId,
+      })
     }
 
-    res.status(200).json(user)
+    res.status(200).json({
+      success: true,
+      data: user,
+    })
   } catch (error) {
-    res.status(500).json({ message: SOMETHING_WENT_WRONG_MESSAGE, error: error.message })
+    res.status(500).json({
+      success: false,
+      message: SOMETHING_WENT_WRONG_MESSAGE,
+      error: error.message,
+    })
   }
 }
 
@@ -34,27 +46,48 @@ export const createUser = async (req: Request, res: Response) => {
   const { error, value }: { error: ValidationError; value: UserRequestBody } = userRequestSchema.validate(req.body)
 
   if (error) {
-    const errorMessage = error.details[0].message
-    return res.status(400).json({ error: errorMessage })
-  }
-
-  const user: User = {
-    id: uuidv4(),
-    login: value.login,
-    password: value.password,
-    age: value.age,
-    isDeleted: false,
+    return res.status(400).json({
+      success: false,
+      message: error.details[0].message,
+      error,
+    })
   }
 
   try {
-    const existingUsers = await _getUsers()
-    const newUsers = jsonStringfy([...existingUsers, user])
+    const users = await _getUsers()
+    const isLoginNotAvailable = users.find((user) => user.login === value.login)
+
+    if (isLoginNotAvailable) {
+      return res.status(400).json({
+        success: false,
+        message: LOGIN_NOT_AVAILABLE_MESSAGE,
+        data: value,
+      })
+    }
+
+    const user: User = {
+      id: uuidv4(),
+      login: value.login,
+      password: value.password,
+      age: value.age,
+      isDeleted: false,
+    }
+
+    const newUsers = jsonStringfy([...users, user])
 
     await fs.writeFile(databaseFilePath, newUsers)
 
-    res.status(201).json({ message: USER_CREATED_MESSAGE, user })
+    res.status(201).json({
+      success: true,
+      message: USER_CREATED_MESSAGE,
+      data: user,
+    })
   } catch (error) {
-    res.status(500).json({ message: SOMETHING_WENT_WRONG_MESSAGE, error: error.message })
+    res.status(500).json({
+      success: false,
+      message: SOMETHING_WENT_WRONG_MESSAGE,
+      error: error.message,
+    })
   }
 }
 
@@ -65,18 +98,35 @@ export const updateUser = async (req: Request, res: Response) => {
     const user = await _getUserById(userId)
 
     if (!user) {
-      return res.status(400).json({ error: NO_USER_FOUND_MESSAGE, userId })
+      return res.status(404).json({
+        success: false,
+        error: NO_USER_FOUND_MESSAGE,
+        data: userId,
+      })
     }
 
     // check if all the required fields are provided
     const { error, value }: { error: ValidationError; value: UserRequestBody } = userRequestSchema.validate(req.body)
 
     if (error) {
-      const errorMessage = error.details[0].message
-      return res.status(400).json({ error: errorMessage })
+      return res.status(400).json({
+        success: false,
+        message: error.details[0].message,
+        error,
+      })
     }
 
     const users = await _getUsers()
+    const isLoginNotAvailable = users.find((user) => user.login === value.login)
+
+    if (isLoginNotAvailable) {
+      return res.status(400).json({
+        success: false,
+        message: LOGIN_NOT_AVAILABLE_MESSAGE,
+        data: value,
+      })
+    }
+
     const updatedUser: User = {
       id: user.id,
       login: value.login,
@@ -90,9 +140,17 @@ export const updateUser = async (req: Request, res: Response) => {
 
     await fs.writeFile(databaseFilePath, jsonStringfy(users))
 
-    res.status(200).json({ message: USER_UPDATED_MESSAGE, updatedUser })
+    res.status(200).json({
+      success: true,
+      message: USER_UPDATED_MESSAGE,
+      data: updatedUser,
+    })
   } catch (error) {
-    res.status(500).json({ message: SOMETHING_WENT_WRONG_MESSAGE, error: error.message })
+    res.status(500).json({
+      success: false,
+      message: SOMETHING_WENT_WRONG_MESSAGE,
+      error: error.message,
+    })
   }
 }
 
@@ -103,7 +161,11 @@ export const deleteUser = async (req: Request, res: Response) => {
     const user = await _getUserById(userId)
 
     if (!user) {
-      return res.status(400).json({ error: NO_USER_FOUND_MESSAGE, userId })
+      return res.status(400).json({
+        success: false,
+        error: NO_USER_FOUND_MESSAGE,
+        data: userId,
+      })
     }
 
     const users = await _getUsers()
@@ -114,9 +176,17 @@ export const deleteUser = async (req: Request, res: Response) => {
 
     await fs.writeFile(databaseFilePath, jsonStringfy(users))
 
-    res.status(200).json({ message: USER_DELETED_MESSAGE, deletedUser })
+    res.status(200).json({
+      success: true,
+      message: USER_DELETED_MESSAGE,
+      data: deletedUser,
+    })
   } catch (error) {
-    res.status(500).json({ message: SOMETHING_WENT_WRONG_MESSAGE, error: error.message })
+    res.status(500).json({
+      success: false,
+      message: SOMETHING_WENT_WRONG_MESSAGE,
+      error: error.message,
+    })
   }
 }
 
@@ -125,25 +195,51 @@ export const getAutoSuggestUsers = async (req: Request, res: Response) => {
     const { loginSubstring, limit = 10 } = req.body
 
     if (!loginSubstring) {
-      return res.status(400).json({ error: NO_LOGIN_SUBSTRING_MESSAGE })
+      return res.status(400).json({
+        success: false,
+        error: NO_LOGIN_SUBSTRING_MESSAGE,
+      })
     }
 
     const searchRegex = new RegExp(loginSubstring, 'gi')
 
     const users = await _getUsers()
-    let suggestedUsers = users.filter((user) => user.login.match(searchRegex))
+    const suggestedUsers = users
+      .filter((user) => user.login.match(searchRegex))
+      .sort((userA, userB) => {
+        if (userA.login.indexOf(loginSubstring) > userB.login.indexOf(loginSubstring)) {
+          return 1
+        }
+
+        if (userA.login.indexOf(loginSubstring) < userB.login.indexOf(loginSubstring)) {
+          return -1
+        }
+
+        return 0
+      })
 
     if (!suggestedUsers.length) {
-      return res.status(404).json({ error: NO_USERS_FOUND_MATCHING_LOGIN_SUBSTRING_MESSAGE, loginSubstring })
+      return res.status(404).json({
+        success: false,
+        error: NO_USERS_FOUND_MATCHING_LOGIN_SUBSTRING_MESSAGE,
+        data: loginSubstring,
+      })
     }
 
     if (suggestedUsers.length > limit) {
       suggestedUsers.length = limit
     }
 
-    res.status(200).json({ suggestedUsers })
+    res.status(200).json({
+      success: true,
+      data: suggestedUsers,
+    })
   } catch (error) {
-    res.status(500).json({ message: SOMETHING_WENT_WRONG_MESSAGE, error: error.message })
+    res.status(500).json({
+      success: false,
+      message: SOMETHING_WENT_WRONG_MESSAGE,
+      error: error.message,
+    })
   }
 }
 
