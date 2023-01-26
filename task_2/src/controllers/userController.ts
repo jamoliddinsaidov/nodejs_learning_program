@@ -15,6 +15,7 @@ import {
   databaseFilePath,
 } from './constants.js'
 import { jsonStringfy } from '../utils/jsonStringfy.js'
+import { sortUserByLogin } from '../utils/sortUserByLogin.js'
 
 export const getUserById = async (req: Request, res: Response) => {
   try {
@@ -206,17 +207,7 @@ export const getAutoSuggestUsers = async (req: Request, res: Response) => {
     const users = await _getUsers()
     const suggestedUsers = users
       .filter((user) => user.login.match(searchRegex))
-      .sort((userA, userB) => {
-        if (userA.login.indexOf(loginSubstring) > userB.login.indexOf(loginSubstring)) {
-          return 1
-        }
-
-        if (userA.login.indexOf(loginSubstring) < userB.login.indexOf(loginSubstring)) {
-          return -1
-        }
-
-        return 0
-      })
+      .sort((userA, userB) => sortUserByLogin(userA, userB, loginSubstring))
 
     if (!suggestedUsers.length) {
       return res.status(404).json({
