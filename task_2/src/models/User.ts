@@ -1,12 +1,12 @@
 import { DataTypes, Model, Optional } from 'sequelize'
 import { sequelizeConnection } from '../data-access/config.js'
 
-interface IUser {
-  id: number
+export interface IUser {
+  id?: number
   login: string
   password: string
   age: Number
-  is_deleted: boolean
+  is_deleted?: boolean
   created_at?: Date
   updated_at?: Date
 }
@@ -48,6 +48,7 @@ User.init(
     is_deleted: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
+      defaultValue: true,
     },
   },
   {
