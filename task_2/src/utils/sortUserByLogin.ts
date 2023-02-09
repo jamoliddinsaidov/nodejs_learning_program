@@ -1,4 +1,4 @@
-import { User } from '../models/User.js'
+import { User } from '../models/schema/userSchema.js'
 
 export const sortUserByLogin = (userA: User, userB: User, loginSubstring: string) => {
   if (userA.login.indexOf(loginSubstring) > userB.login.indexOf(loginSubstring)) {
