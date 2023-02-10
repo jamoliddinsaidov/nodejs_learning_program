@@ -13,10 +13,10 @@ export const getUserById = async (req: Request, res: Response) => {
     const result = await userService.getById(userId)
 
     if (result?.error) {
-      return res.status(400).json(result.error)
+      return res.status(result.status).json(result.error)
     }
 
-    res.status(200).json(result.response)
+    res.status(result.status).json(result.response)
   } catch (error) {
     res.status(500).json(getGenericErrorMessage(error))
   }
@@ -37,10 +37,10 @@ export const createUser = async (req: Request, res: Response) => {
     const result = await userService.create(schemaValidation.value)
 
     if (result?.error) {
-      return res.status(400).json(result.error)
+      return res.status(result.status).json(result.error)
     }
 
-    res.status(201).json(result.response)
+    res.status(result.status).json(result.response)
   } catch (error) {
     res.status(500).json(getGenericErrorMessage(error))
   }
@@ -70,10 +70,10 @@ export const updateUser = async (req: Request, res: Response) => {
     const result = await userService.update(updatedUser)
 
     if (result?.error) {
-      return res.status(400).json(result.error)
+      return res.status(result.status).json(result.error)
     }
 
-    res.status(200).json(result.response)
+    res.status(result.status).json(result.response)
   } catch (error) {
     res.status(500).json(getGenericErrorMessage(error))
   }
@@ -85,10 +85,10 @@ export const deleteUser = async (req: Request, res: Response) => {
     const result = await userService.delete(userId)
 
     if (result?.error) {
-      return res.status(400).json(result.error)
+      return res.status(result.status).json(result.error)
     }
 
-    res.status(200).json(result.response)
+    res.sendStatus(result.status)
   } catch (error) {
     res.status(500).json(getGenericErrorMessage(error))
   }
@@ -101,10 +101,10 @@ export const getAutoSuggestUsers = async (req: Request, res: Response) => {
     const result = await userService.autoSuggest(loginSubstring, limit)
 
     if (result?.error) {
-      return res.status(400).json(result.error)
+      return res.status(result.status).json(result.error)
     }
 
-    res.status(200).json(result.response)
+    res.status(result.status).json(result.response)
   } catch (error) {
     res.status(500).json(getGenericErrorMessage(error))
   }

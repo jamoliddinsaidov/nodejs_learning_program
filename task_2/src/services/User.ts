@@ -25,6 +25,7 @@ interface IErrorResponse {
 interface IUserServiceResponse {
   response?: ISuccessReponse
   error?: IErrorResponse
+  status: number
 }
 
 interface IUserService {
@@ -47,7 +48,7 @@ export class UserService implements IUserService {
         error: userId,
       }
 
-      return { error }
+      return { error, status: 404 }
     }
 
     const response: ISuccessReponse = {
@@ -55,7 +56,7 @@ export class UserService implements IUserService {
       data: user,
     }
 
-    return { response }
+    return { response, status: 200 }
   }
 
   async create(user: IUser) {
@@ -67,7 +68,7 @@ export class UserService implements IUserService {
         error: user,
       }
 
-      return { error }
+      return { error, status: 400 }
     }
 
     await User.create(user)
@@ -77,7 +78,7 @@ export class UserService implements IUserService {
       message: USER_CREATED_MESSAGE,
       data: user,
     }
-    return { response }
+    return { response, status: 201 }
   }
 
   async update(updatedUser: IUser) {
@@ -85,7 +86,7 @@ export class UserService implements IUserService {
     const userToBeUpdated = await this.getById(userId)
 
     if (userToBeUpdated?.error) {
-      return { error: userToBeUpdated.error }
+      return { error: userToBeUpdated.error, status: userToBeUpdated.status }
     }
 
     const isLoginNotAvailable = await this.getIsLoginNotAvailable(updatedUser.login)
@@ -96,7 +97,7 @@ export class UserService implements IUserService {
         error: userId,
       }
 
-      return { error }
+      return { error, status: 400 }
     }
 
     await User.update(updatedUser, {
@@ -111,14 +112,14 @@ export class UserService implements IUserService {
       data: updatedUser,
     }
 
-    return { response }
+    return { response, status: 200 }
   }
 
   async delete(userId: number) {
     const userToBeDeleted = await this.getById(userId)
 
     if (userToBeDeleted?.error) {
-      return { error: userToBeDeleted.error }
+      return { error: userToBeDeleted.error, status: userToBeDeleted.status }
     }
 
     const deletedUser = userToBeDeleted.response.data as IUser
@@ -130,13 +131,7 @@ export class UserService implements IUserService {
       },
     })
 
-    const response: ISuccessReponse = {
-      success: true,
-      message: USER_DELETED_MESSAGE,
-      data: deletedUser,
-    }
-
-    return { response }
+    return { status: 204 }
   }
 
   async autoSuggest(loginSubstring: string, limit: number) {
@@ -146,7 +141,7 @@ export class UserService implements IUserService {
         message: NO_LOGIN_SUBSTRING_MESSAGE,
       }
 
-      return { error }
+      return { error, status: 400 }
     }
 
     const suggestedUsers: IUser[] = await User.findAll({
@@ -166,7 +161,7 @@ export class UserService implements IUserService {
         error: loginSubstring,
       }
 
-      return { error }
+      return { error, status: 400 }
     }
 
     const response: ISuccessReponse = {
@@ -174,7 +169,7 @@ export class UserService implements IUserService {
       data: suggestedUsers,
     }
 
-    return { response }
+    return { response, status: 200 }
   }
 
   async getIsLoginNotAvailable(targetLogin: string) {
