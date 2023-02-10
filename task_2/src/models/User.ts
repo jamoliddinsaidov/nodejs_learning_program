@@ -1,21 +1,58 @@
-import Joi from 'joi'
+import { DataTypes, Model, Optional } from 'sequelize'
+import { sequelizeConnection } from '../data-access/config.js'
 
-export const userRequestSchema = Joi.object({
-  login: Joi.string().alphanum().min(3).max(30).required(),
-  password: Joi.string().pattern(new RegExp('^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{3,30}$')),
-  age: Joi.number().min(4).max(130),
-})
-
-export type UserRequestBody = {
+export interface IUser {
+  id?: number
   login: string
   password: string
-  age: number
+  age: Number
+  is_deleted?: boolean
+  created_at?: Date
+  updated_at?: Date
 }
 
-export type User = {
-  id: string
-  login: string
-  password: string
-  age: number
-  isDeleted: boolean
+export class User extends Model<IUser> {
+  public id: number
+  public login: string
+  public password: string
+  public age: Number
+  public is_deleted: boolean
+  public created_at?: Date
+  public updated_at?: Date
 }
+
+User.init(
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    login: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    age: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        min: 4,
+        max: 130,
+      },
+    },
+    is_deleted: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true,
+    },
+  },
+  {
+    sequelize: sequelizeConnection,
+    modelName: 'users',
+  }
+)
