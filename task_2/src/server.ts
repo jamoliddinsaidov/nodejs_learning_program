@@ -7,6 +7,7 @@ import {
   SERVER_IS_RUNNING_MESSAGE,
   SERVER_IS_CLOSING_MESSAGE,
 } from './data-access/constants.js'
+import { groupRouter } from './routes/group.js'
 
 const app = express()
 
@@ -18,6 +19,7 @@ app.use(express.json())
 
 // routes
 app.use('/user/', userRouter)
+app.use('/group/', groupRouter)
 
 try {
   await sequelizeConnection.authenticate()
