@@ -5,9 +5,3 @@ export const userRequestSchema = Joi.object({
   password: Joi.string().pattern(new RegExp('^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{3,30}$')),
   age: Joi.number().min(4).max(130),
 })
-
-export type UserRequestBody = {
-  login: string
-  password: string
-  age: number
-}

@@ -70,12 +70,12 @@ export class UserService implements IUserService {
       return { error, status: 400 }
     }
 
-    await User.create(user)
+    const createdUser = await User.create(user)
 
     const response: ISuccessReponse = {
       success: true,
       message: USER_CREATED_MESSAGE,
-      data: user,
+      data: createdUser,
     }
     return { response, status: 201 }
   }

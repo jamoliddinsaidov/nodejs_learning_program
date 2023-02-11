@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { ValidationError } from 'joi'
-import { UserRequestBody, userRequestSchema } from '../models/schema/userSchema.js'
+import { userRequestSchema } from '../models/schema/userSchema.js'
 import { getGenericErrorMessage } from '../utils/index.js'
 import { UserService } from '../services/User.js'
 import { IUser } from '../models/User.js'
@@ -23,7 +23,7 @@ export const getUserById = async (req: Request, res: Response) => {
 }
 
 export const createUser = async (req: Request, res: Response) => {
-  const schemaValidation: { error: ValidationError; value: UserRequestBody } = userRequestSchema.validate(req.body)
+  const schemaValidation: { error: ValidationError; value: IUser } = userRequestSchema.validate(req.body)
 
   if (schemaValidation.error) {
     return res.status(400).json({
@@ -48,7 +48,7 @@ export const createUser = async (req: Request, res: Response) => {
 
 export const updateUser = async (req: Request, res: Response) => {
   try {
-    const schemaValidation: { error: ValidationError; value: UserRequestBody } = userRequestSchema.validate(req.body)
+    const schemaValidation: { error: ValidationError; value: IUser } = userRequestSchema.validate(req.body)
 
     if (schemaValidation.error) {
       return res.status(400).json({
