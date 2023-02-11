@@ -10,7 +10,7 @@ export enum Permission {
 }
 
 export interface IGroup {
-  id: number
+  id?: number
   name: string
   permissions: Array<Permission>
   created_at?: Date
@@ -40,9 +40,6 @@ Group.init(
     permissions: {
       type: DataTypes.ARRAY(DataTypes.STRING),
       allowNull: false,
-      validate: {
-        isIn: [[Permission.READ, Permission.WRITE, Permission.DELETE, Permission.SHARE, Permission.UPLOAD_FILES]],
-      },
     },
   },
   {
