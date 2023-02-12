@@ -1,13 +1,14 @@
 import express from 'express'
-import { userRouter } from './routes/user.js'
 import { sequelizeConnection } from './data-access/config.js'
+import { userRouter } from './routes/user.js'
+import { groupRouter } from './routes/group.js'
+import { addUsersToGroup } from './controllers/userGroupController.js'
 import {
   DB_CONNECTED_MESSAGE,
   DB_CONNECTION_FAILED_MESSAGE,
   SERVER_IS_RUNNING_MESSAGE,
   SERVER_IS_CLOSING_MESSAGE,
 } from './data-access/constants.js'
-import { groupRouter } from './routes/group.js'
 
 const app = express()
 
@@ -20,6 +21,7 @@ app.use(express.json())
 // routes
 app.use('/user/', userRouter)
 app.use('/group/', groupRouter)
+app.use('/userGroup/', addUsersToGroup)
 
 try {
   await sequelizeConnection.authenticate()

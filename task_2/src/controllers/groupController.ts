@@ -51,7 +51,9 @@ export const createGroup = async (req: Request, res: Response) => {
     }
 
     res.status(result.status).json(result.response)
-  } catch (error) {}
+  } catch (error) {
+    res.status(500).json(getGenericErrorMessage(error))
+  }
 }
 
 export const updateGroup = async (req: Request, res: Response) => {
