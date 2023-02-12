@@ -12,7 +12,7 @@ export enum Permission {
 export interface IGroup {
   id?: number
   name: string
-  permissions: Array<Permission>
+  permissions: Permission[]
   created_at?: Date
   updated_at?: Date
 }

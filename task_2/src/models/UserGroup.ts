@@ -3,7 +3,7 @@ import { sequelizeConnection } from '../data-access/config.js'
 
 export interface IUserGroup {
   user_group_id?: number
-  fk_user_ids: Array<number>
+  fk_user_ids: number[]
   fk_group_id: number
   created_at?: Date
   updated_at?: Date
@@ -11,7 +11,7 @@ export interface IUserGroup {
 
 export class UserGroup extends Model<IUserGroup> {
   user_group_id: number
-  fk_user_ids: Array<number>
+  fk_user_ids: number[]
   fk_group_id: ForeignKey<number>
   created_at?: Date
   updated_at?: Date

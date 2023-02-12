@@ -12,3 +12,7 @@ export const NO_GROUP_FOUND_MESSAGE = 'No group found matching with the provided
 export const GROUP_NAME_NOT_AVAILABLE_MESSAGE = 'The group name you provided is not available. Please try another one'
 export const GROUP_CREATED_MESSAGE = 'Group is successfully created'
 export const GROUP_UPDATED_MESSAGE = 'Group is successfully updated'
+
+// userGroup service constants
+export const USER_ADDED_TO_GROUP_MESSAGE = 'Users are successfully added to the group'
+export const INCORRECT_USED_IDS_MESSAGE = 'Some user IDs are incorrect, please try again'

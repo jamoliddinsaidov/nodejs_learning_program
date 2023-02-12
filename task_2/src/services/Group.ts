@@ -1,4 +1,6 @@
 import { Group, IGroup } from '../models/Group.js'
+import { UserGroupService } from './UserGroup.js'
+import { sequelizeConnection } from '../data-access/config.js'
 import {
   NO_GROUP_FOUND_MESSAGE,
   GROUP_NAME_NOT_AVAILABLE_MESSAGE,
@@ -31,12 +33,13 @@ interface IGroupService {
   update: (group: IGroup) => Promise<IGroupServiceResponse>
   delete: (groupId: number) => Promise<IGroupServiceResponse>
   getIsGroupNameNotAvailable: (targetGroupName: string) => Promise<boolean>
+  getIsGroupAvailable: (groupId: number) => Promise<boolean>
 }
 
 export class GroupService implements IGroupService {
   async getAll() {
     const groups = await Group.findAll()
-    const response: ISuccessReponse = {
+    const response = {
       success: true,
       data: groups,
     }
@@ -48,7 +51,7 @@ export class GroupService implements IGroupService {
     const group = await Group.findByPk(groupId)
 
     if (!group) {
-      const error: IErrorResponse = {
+      const error = {
         success: false,
         message: NO_GROUP_FOUND_MESSAGE,
         error: groupId,
@@ -57,7 +60,7 @@ export class GroupService implements IGroupService {
       return { error, status: 404 }
     }
 
-    const response: ISuccessReponse = {
+    const response = {
       success: true,
       data: group,
     }
@@ -68,7 +71,7 @@ export class GroupService implements IGroupService {
   async create(group: IGroup) {
     const isGroupNameNotAvailable = await this.getIsGroupNameNotAvailable(group.name)
     if (isGroupNameNotAvailable) {
-      const error: IErrorResponse = {
+      const error = {
         success: false,
         message: GROUP_NAME_NOT_AVAILABLE_MESSAGE,
         error: group,
@@ -79,7 +82,7 @@ export class GroupService implements IGroupService {
 
     const createdGroup = await Group.create(group)
 
-    const response: ISuccessReponse = {
+    const response = {
       success: true,
       message: GROUP_CREATED_MESSAGE,
       data: createdGroup,
@@ -98,7 +101,7 @@ export class GroupService implements IGroupService {
 
     const isGroupNameNotAvailable = await this.getIsGroupNameNotAvailable(updatedGroup.name)
     if (isGroupNameNotAvailable) {
-      const error: IErrorResponse = {
+      const error = {
         success: false,
         message: GROUP_NAME_NOT_AVAILABLE_MESSAGE,
         error: updatedGroup,
@@ -113,7 +116,7 @@ export class GroupService implements IGroupService {
       },
     })
 
-    const response: ISuccessReponse = {
+    const response = {
       success: true,
       message: GROUP_UPDATED_MESSAGE,
       data: updatedGroup,
@@ -129,13 +132,31 @@ export class GroupService implements IGroupService {
       return { error: groupToBeDeleted.error, status: groupToBeDeleted.status }
     }
 
-    await Group.destroy({
-      where: {
-        id: groupId,
-      },
-    })
+    const transaction = await sequelizeConnection.transaction()
+    const userGroupService = new UserGroupService()
 
-    return { status: 204 }
+    try {
+      await userGroupService.deleteGroupFromUserGroup(groupId)
+
+      await Group.destroy({
+        where: {
+          id: groupId,
+        },
+      })
+
+      transaction.commit()
+
+      return { status: 204 }
+    } catch (exception) {
+      await transaction.rollback()
+
+      const error = {
+        success: false,
+        error: exception,
+      }
+
+      return { error, status: 500 }
+    }
   }
 
   async getIsGroupNameNotAvailable(targetGroupName: string) {
@@ -143,5 +164,16 @@ export class GroupService implements IGroupService {
     const isLoginNotAvailable = groups.find((group) => group.name === targetGroupName)
 
     return !!isLoginNotAvailable
+  }
+
+  async getIsGroupAvailable(groupId: number) {
+    const group = await Group.findOne({
+      attributes: ['id'],
+      where: {
+        id: groupId,
+      },
+    })
+
+    return !!group
   }
 }
