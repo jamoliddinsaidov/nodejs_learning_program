@@ -36,8 +36,6 @@ export class UserGroupService implements IUserGroupService {
     const userService = new UserService()
     const groupService = new GroupService()
 
-    this.deleteUserFromGroup(1)
-
     const areUsersAvailable = await userService.getAreUsersAvailable(userIds)
     if (!areUsersAvailable) {
       const error = {
