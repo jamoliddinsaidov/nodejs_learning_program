@@ -1,14 +1,15 @@
 import { Op } from 'sequelize'
 import { User, IUser } from '../models/User.js'
+import { sequelizeConnection } from '../data-access/config.js'
 import {
   NO_USER_FOUND_MESSAGE,
   LOGIN_NOT_AVAILABLE_MESSAGE,
   USER_CREATED_MESSAGE,
   USER_UPDATED_MESSAGE,
-  USER_DELETED_MESSAGE,
   NO_LOGIN_SUBSTRING_MESSAGE,
   NO_USERS_FOUND_MATCHING_LOGIN_SUBSTRING_MESSAGE,
 } from './constants.js'
+import { UserGroupService } from './UserGroup.js'
 
 interface ISuccessReponse {
   success?: boolean
@@ -35,6 +36,7 @@ interface IUserService {
   delete: (userId: number) => Promise<IUserServiceResponse>
   autoSuggest: (loginSubstring: string, limit: number) => Promise<IUserServiceResponse>
   getIsLoginNotAvailable: (login: string) => Promise<boolean>
+  getAreUsersAvailable: (userIds: number[]) => Promise<boolean>
 }
 
 export class UserService implements IUserService {
@@ -42,7 +44,7 @@ export class UserService implements IUserService {
     const user = await User.findByPk(userId)
 
     if (!user) {
-      const error: IErrorResponse = {
+      const error = {
         success: false,
         message: NO_USER_FOUND_MESSAGE,
         error: userId,
@@ -51,7 +53,7 @@ export class UserService implements IUserService {
       return { error, status: 404 }
     }
 
-    const response: ISuccessReponse = {
+    const response = {
       success: true,
       data: user,
     }
@@ -62,7 +64,7 @@ export class UserService implements IUserService {
   async create(user: IUser) {
     const isLoginNotAvailable = await this.getIsLoginNotAvailable(user.login)
     if (isLoginNotAvailable) {
-      const error: IErrorResponse = {
+      const error = {
         success: false,
         message: LOGIN_NOT_AVAILABLE_MESSAGE,
         error: user,
@@ -71,12 +73,12 @@ export class UserService implements IUserService {
       return { error, status: 400 }
     }
 
-    await User.create(user)
+    const createdUser = await User.create(user)
 
-    const response: ISuccessReponse = {
+    const response = {
       success: true,
       message: USER_CREATED_MESSAGE,
-      data: user,
+      data: createdUser,
     }
     return { response, status: 201 }
   }
@@ -91,7 +93,7 @@ export class UserService implements IUserService {
 
     const isLoginNotAvailable = await this.getIsLoginNotAvailable(updatedUser.login)
     if (isLoginNotAvailable) {
-      const error: IErrorResponse = {
+      const error = {
         success: false,
         message: LOGIN_NOT_AVAILABLE_MESSAGE,
         error: userId,
@@ -106,7 +108,7 @@ export class UserService implements IUserService {
       },
     })
 
-    const response: ISuccessReponse = {
+    const response = {
       success: true,
       message: USER_UPDATED_MESSAGE,
       data: updatedUser,
@@ -125,18 +127,36 @@ export class UserService implements IUserService {
     const deletedUser = userToBeDeleted.response.data as IUser
     deletedUser.is_deleted = true
 
-    await User.update(deletedUser, {
-      where: {
-        id: userId,
-      },
-    })
+    const transaction = await sequelizeConnection.transaction()
+    const userGroupService = new UserGroupService()
 
-    return { status: 204 }
+    try {
+      await userGroupService.deleteUserFromGroup(userId)
+
+      await User.update(deletedUser, {
+        where: {
+          id: userId,
+        },
+      })
+
+      transaction.commit()
+
+      return { status: 204 }
+    } catch (exception) {
+      await transaction.rollback()
+
+      const error = {
+        success: false,
+        error: exception,
+      }
+
+      return { error, status: 500 }
+    }
   }
 
   async autoSuggest(loginSubstring: string, limit: number) {
     if (!loginSubstring) {
-      const error: IErrorResponse = {
+      const error = {
         success: false,
         message: NO_LOGIN_SUBSTRING_MESSAGE,
       }
@@ -155,7 +175,7 @@ export class UserService implements IUserService {
     })
 
     if (!suggestedUsers.length) {
-      const error: IErrorResponse = {
+      const error = {
         success: false,
         message: NO_USERS_FOUND_MATCHING_LOGIN_SUBSTRING_MESSAGE,
         error: loginSubstring,
@@ -164,7 +184,7 @@ export class UserService implements IUserService {
       return { error, status: 400 }
     }
 
-    const response: ISuccessReponse = {
+    const response = {
       success: true,
       data: suggestedUsers,
     }
@@ -177,5 +197,17 @@ export class UserService implements IUserService {
     const isLoginNotAvailable = users.find((user) => user.login === targetLogin)
 
     return !!isLoginNotAvailable
+  }
+
+  async getAreUsersAvailable(userIds: number[]) {
+    const availableUserIds = (
+      await User.findAll({
+        attributes: ['id'],
+      })
+    ).map((user) => user.id)
+
+    const areTargetUsersAvailable = userIds.every((userId) => availableUserIds.includes(userId))
+
+    return areTargetUsersAvailable
   }
 }
