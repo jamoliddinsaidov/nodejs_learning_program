@@ -14,13 +14,13 @@ app.use(express.urlencoded({ extended: false }))
 // built-in middleware to handle json data
 app.use(express.json())
 
-// middleware to log errors
-app.use(logUnhandledError)
-
 // routes
 app.use('/user/', userRouter)
 app.use('/group/', groupRouter)
 app.use('/userGroup/', userGroupRouter)
+
+// middleware to log errors
+app.use(logUnhandledError)
 
 try {
   await sequelizeConnection.authenticate()
