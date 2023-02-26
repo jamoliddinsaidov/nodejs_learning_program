@@ -21,7 +21,6 @@ const buildDevLogger = () => {
 }
 
 const buildProdLogger = () => {
-  console.log('from prod')
   return createLogger({
     level: 'http',
     format: combine(timestamp(), errors({ stack: true }), json({ space: 2 })),
