@@ -10,6 +10,7 @@ import {
   NO_USERS_FOUND_MATCHING_LOGIN_SUBSTRING,
 } from './constants.js'
 import { UserGroupService } from './UserGroup.js'
+import { logger } from '../middlewares/index.js'
 
 interface ISuccessReponse {
   success?: boolean
@@ -37,10 +38,13 @@ interface IUserService {
   autoSuggest: (loginSubstring: string, limit: number) => Promise<IUserServiceResponse>
   getIsLoginNotAvailable: (login: string) => Promise<boolean>
   getAreUsersAvailable: (userIds: number[]) => Promise<boolean>
+  log: (method: string, args: Object) => void
 }
 
 export class UserService implements IUserService {
   async getById(userId: number) {
+    this.log('getById', { userId })
+
     const user = await User.findByPk(userId)
 
     if (!user) {
@@ -62,6 +66,8 @@ export class UserService implements IUserService {
   }
 
   async create(user: IUser) {
+    this.log('create', { user })
+
     const isLoginNotAvailable = await this.getIsLoginNotAvailable(user.login)
     if (isLoginNotAvailable) {
       const error = {
@@ -84,6 +90,8 @@ export class UserService implements IUserService {
   }
 
   async update(updatedUser: IUser) {
+    this.log('update', { updatedUser })
+
     const userId = updatedUser.id
     const userToBeUpdated = await this.getById(userId)
 
@@ -118,6 +126,8 @@ export class UserService implements IUserService {
   }
 
   async delete(userId: number) {
+    this.log('delete', { userId })
+
     const userToBeDeleted = await this.getById(userId)
 
     if (userToBeDeleted?.error) {
@@ -155,6 +165,8 @@ export class UserService implements IUserService {
   }
 
   async autoSuggest(loginSubstring: string, limit: number) {
+    this.log('autoSuggest', { loginSubstring, limit })
+
     if (!loginSubstring) {
       const error = {
         success: false,
@@ -193,6 +205,8 @@ export class UserService implements IUserService {
   }
 
   async getIsLoginNotAvailable(targetLogin: string) {
+    this.log('getIsLoginNotAvailable', { targetLogin })
+
     const users = await User.findAll()
     const isLoginNotAvailable = users.find((user) => user.login === targetLogin)
 
@@ -200,6 +214,8 @@ export class UserService implements IUserService {
   }
 
   async getAreUsersAvailable(userIds: number[]) {
+    this.log('getAreUsersAvailable', { userIds })
+
     const availableUserIds = (
       await User.findAll({
         attributes: ['id'],
@@ -209,5 +225,9 @@ export class UserService implements IUserService {
     const areTargetUsersAvailable = userIds.every((userId) => availableUserIds.includes(userId))
 
     return areTargetUsersAvailable
+  }
+
+  log(method: string, args: Object) {
+    logger.info(`UserService: ${method} with arguments - ${JSON.stringify(args)}`)
   }
 }
