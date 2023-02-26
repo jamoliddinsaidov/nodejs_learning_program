@@ -2,6 +2,7 @@ import { Request, Response } from 'express'
 import { UserGroupService } from '../services/UserGroup.js'
 import { userGroupRequestSchema } from '../models/schema/userGroupSchema.js'
 import { getGenericErrorMessage } from '../utils/getGenericErrorMessage.js'
+import { logError } from '../utils/logError.js'
 
 const userGroupService = new UserGroupService()
 
@@ -29,5 +30,14 @@ export const addUsersToGroup = async (req: Request, res: Response) => {
     res.status(result.status).json(result.response)
   } catch (error) {
     res.status(500).json(getGenericErrorMessage(error))
+    logError(
+      'userGroupController',
+      'addUsersToGroup',
+      {
+        groupId: schemaValidation.value.groupId,
+        userIds: schemaValidation.value.userIds,
+      },
+      error.message
+    )
   }
 }

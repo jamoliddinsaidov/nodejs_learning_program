@@ -4,6 +4,7 @@ import { groupRequestSchema } from '../models/schema/groupSchema.js'
 import { getGenericErrorMessage } from '../utils/index.js'
 import { ValidationError } from 'joi'
 import { IGroup } from '../models/Group.js'
+import { logError } from '../utils/index.js'
 
 const groupService = new GroupService()
 
@@ -14,12 +15,14 @@ export const getAllGroups = async (req: Request, res: Response) => {
     res.status(result.status).json(result.response)
   } catch (error) {
     res.status(500).json(getGenericErrorMessage(error))
+    logError('GroupController', 'getAllGroups', {}, error.message)
   }
 }
 
 export const getGroupById = async (req: Request, res: Response) => {
+  const groupId = parseInt(req.params.id)
+
   try {
-    const groupId = parseInt(req.params.id)
     const result = await groupService.getById(groupId)
 
     if (result?.error) {
@@ -29,6 +32,7 @@ export const getGroupById = async (req: Request, res: Response) => {
     res.status(result.status).json(result.response)
   } catch (error) {
     res.status(500).json(getGenericErrorMessage(error))
+    logError('GroupController', 'getGroupById', { groupId }, error.message)
   }
 }
 
@@ -53,6 +57,7 @@ export const createGroup = async (req: Request, res: Response) => {
     res.status(result.status).json(result.response)
   } catch (error) {
     res.status(500).json(getGenericErrorMessage(error))
+    logError('GroupController', 'createGroup', { group: schemaValidation.value }, error.message)
   }
 }
 
@@ -67,14 +72,14 @@ export const updateGroup = async (req: Request, res: Response) => {
     })
   }
 
-  try {
-    const groupId = parseInt(req.params.id)
-    const updatedGroup: IGroup = {
-      id: groupId,
-      name: schemaValidation.value.name,
-      permissions: schemaValidation.value.permissions,
-    }
+  const groupId = parseInt(req.params.id)
+  const updatedGroup: IGroup = {
+    id: groupId,
+    name: schemaValidation.value.name,
+    permissions: schemaValidation.value.permissions,
+  }
 
+  try {
     const result = await groupService.update(updatedGroup)
 
     if (result?.error) {
@@ -84,12 +89,14 @@ export const updateGroup = async (req: Request, res: Response) => {
     res.status(result.status).json(result.response)
   } catch (error) {
     res.status(500).json(getGenericErrorMessage(error))
+    logError('GroupController', 'updateGroup', { updatedGroup }, error.message)
   }
 }
 
 export const deleteGroup = async (req: Request, res: Response) => {
+  const groupId = parseInt(req.params.id)
+
   try {
-    const groupId = parseInt(req.params.id)
     const result = await groupService.delete(groupId)
 
     if (result?.error) {
@@ -99,5 +106,6 @@ export const deleteGroup = async (req: Request, res: Response) => {
     res.sendStatus(result.status)
   } catch (error) {
     res.status(500).json(getGenericErrorMessage(error))
+    logError('GroupController', 'deleteGroup', { groupId }, error.message)
   }
 }
