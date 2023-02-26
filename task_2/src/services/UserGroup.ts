@@ -1,7 +1,7 @@
 import { Op } from 'sequelize'
 import { UserGroup, IUserGroup } from '../models/UserGroup.js'
 import { sequelizeConnection } from '../data-access/config.js'
-import { INCORRECT_USED_IDS_MESSAGE, NO_GROUP_FOUND_MESSAGE, USER_ADDED_TO_GROUP_MESSAGE } from './constants.js'
+import { INCORRECT_USED_IDS, NO_GROUP_FOUND, USER_ADDED_TO_GROUP } from './constants.js'
 import { UserService } from './User.js'
 import { GroupService } from './Group.js'
 
@@ -40,7 +40,7 @@ export class UserGroupService implements IUserGroupService {
     if (!areUsersAvailable) {
       const error = {
         success: false,
-        message: INCORRECT_USED_IDS_MESSAGE,
+        message: INCORRECT_USED_IDS,
         error: userIds,
       }
 
@@ -51,7 +51,7 @@ export class UserGroupService implements IUserGroupService {
     if (!IsGroupAvailable) {
       const error = {
         success: false,
-        message: NO_GROUP_FOUND_MESSAGE,
+        message: NO_GROUP_FOUND,
         error: groupId,
       }
 
@@ -95,7 +95,7 @@ export class UserGroupService implements IUserGroupService {
 
       const response = {
         success: true,
-        message: USER_ADDED_TO_GROUP_MESSAGE,
+        message: USER_ADDED_TO_GROUP,
         data: userGroup,
       }
 
@@ -138,7 +138,7 @@ export class UserGroupService implements IUserGroupService {
 
       const response = {
         success: true,
-        message: USER_ADDED_TO_GROUP_MESSAGE,
+        message: USER_ADDED_TO_GROUP,
         data: updatedUserGroup,
       }
 

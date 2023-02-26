@@ -1,7 +1,7 @@
-import { SOMETHING_WENT_WRONG_MESSAGE } from './constants.js'
+import { SOMETHING_WENT_WRONG } from './constants.js'
 
 export const getGenericErrorMessage = (error: Error) => ({
   success: false,
-  message: SOMETHING_WENT_WRONG_MESSAGE,
+  message: SOMETHING_WENT_WRONG,
   error: error.message,
 })

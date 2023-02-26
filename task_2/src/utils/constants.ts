@@ -1,1 +1,1 @@
-export const SOMETHING_WENT_WRONG_MESSAGE = 'Something went wrong. Please try again'
+export const SOMETHING_WENT_WRONG = 'Something went wrong. Please try again'

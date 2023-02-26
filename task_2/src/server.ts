@@ -2,13 +2,8 @@ import express from 'express'
 import { sequelizeConnection } from './data-access/config.js'
 import { userRouter } from './routes/user.js'
 import { groupRouter } from './routes/group.js'
-import { addUsersToGroup } from './controllers/userGroupController.js'
-import {
-  DB_CONNECTED_MESSAGE,
-  DB_CONNECTION_FAILED_MESSAGE,
-  SERVER_IS_RUNNING_MESSAGE,
-  SERVER_IS_CLOSING_MESSAGE,
-} from './data-access/constants.js'
+import { userGroupRouter } from './routes/userGroup.js'
+import { DB_CONNECTED, DB_CONNECTION_FAILED, SERVER_IS_RUNNING, SERVER_IS_CLOSING } from './data-access/constants.js'
 
 const app = express()
 
@@ -21,16 +16,16 @@ app.use(express.json())
 // routes
 app.use('/user/', userRouter)
 app.use('/group/', groupRouter)
-app.use('/userGroup/', addUsersToGroup)
+app.use('/userGroup/', userGroupRouter)
 
 try {
   await sequelizeConnection.authenticate()
-  console.log(DB_CONNECTED_MESSAGE)
+  console.log(DB_CONNECTED)
 
   const PORT = process.env.PORT || 3000
-  app.listen(PORT, () => console.log(SERVER_IS_RUNNING_MESSAGE, PORT))
+  app.listen(PORT, () => console.log(SERVER_IS_RUNNING, PORT))
 } catch (error) {
-  console.error(DB_CONNECTION_FAILED_MESSAGE, error)
-  console.log(SERVER_IS_CLOSING_MESSAGE)
+  console.error(DB_CONNECTION_FAILED, error)
+  console.log(SERVER_IS_CLOSING)
   process.exit(-1)
 }

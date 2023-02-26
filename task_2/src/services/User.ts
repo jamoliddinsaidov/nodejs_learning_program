@@ -2,12 +2,12 @@ import { Op } from 'sequelize'
 import { User, IUser } from '../models/User.js'
 import { sequelizeConnection } from '../data-access/config.js'
 import {
-  NO_USER_FOUND_MESSAGE,
-  LOGIN_NOT_AVAILABLE_MESSAGE,
-  USER_CREATED_MESSAGE,
-  USER_UPDATED_MESSAGE,
-  NO_LOGIN_SUBSTRING_MESSAGE,
-  NO_USERS_FOUND_MATCHING_LOGIN_SUBSTRING_MESSAGE,
+  NO_USER_FOUND,
+  LOGIN_NOT_AVAILABLE,
+  USER_CREATED,
+  USER_UPDATED,
+  NO_LOGIN_SUBSTRING,
+  NO_USERS_FOUND_MATCHING_LOGIN_SUBSTRING,
 } from './constants.js'
 import { UserGroupService } from './UserGroup.js'
 
@@ -46,7 +46,7 @@ export class UserService implements IUserService {
     if (!user) {
       const error = {
         success: false,
-        message: NO_USER_FOUND_MESSAGE,
+        message: NO_USER_FOUND,
         error: userId,
       }
 
@@ -66,7 +66,7 @@ export class UserService implements IUserService {
     if (isLoginNotAvailable) {
       const error = {
         success: false,
-        message: LOGIN_NOT_AVAILABLE_MESSAGE,
+        message: LOGIN_NOT_AVAILABLE,
         error: user,
       }
 
@@ -77,7 +77,7 @@ export class UserService implements IUserService {
 
     const response = {
       success: true,
-      message: USER_CREATED_MESSAGE,
+      message: USER_CREATED,
       data: createdUser,
     }
     return { response, status: 201 }
@@ -95,7 +95,7 @@ export class UserService implements IUserService {
     if (isLoginNotAvailable) {
       const error = {
         success: false,
-        message: LOGIN_NOT_AVAILABLE_MESSAGE,
+        message: LOGIN_NOT_AVAILABLE,
         error: userId,
       }
 
@@ -110,7 +110,7 @@ export class UserService implements IUserService {
 
     const response = {
       success: true,
-      message: USER_UPDATED_MESSAGE,
+      message: USER_UPDATED,
       data: updatedUser,
     }
 
@@ -158,7 +158,7 @@ export class UserService implements IUserService {
     if (!loginSubstring) {
       const error = {
         success: false,
-        message: NO_LOGIN_SUBSTRING_MESSAGE,
+        message: NO_LOGIN_SUBSTRING,
       }
 
       return { error, status: 400 }
@@ -177,7 +177,7 @@ export class UserService implements IUserService {
     if (!suggestedUsers.length) {
       const error = {
         success: false,
-        message: NO_USERS_FOUND_MATCHING_LOGIN_SUBSTRING_MESSAGE,
+        message: NO_USERS_FOUND_MATCHING_LOGIN_SUBSTRING,
         error: loginSubstring,
       }
 

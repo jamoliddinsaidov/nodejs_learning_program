@@ -2,10 +2,10 @@ import { Group, IGroup } from '../models/Group.js'
 import { UserGroupService } from './UserGroup.js'
 import { sequelizeConnection } from '../data-access/config.js'
 import {
-  NO_GROUP_FOUND_MESSAGE,
-  GROUP_NAME_NOT_AVAILABLE_MESSAGE,
-  GROUP_CREATED_MESSAGE,
-  GROUP_UPDATED_MESSAGE,
+  NO_GROUP_FOUND,
+  GROUP_NAME_NOT_AVAILABLE,
+  GROUP_CREATED,
+  GROUP_UPDATED,
 } from './constants.js'
 
 interface ISuccessReponse {
@@ -53,7 +53,7 @@ export class GroupService implements IGroupService {
     if (!group) {
       const error = {
         success: false,
-        message: NO_GROUP_FOUND_MESSAGE,
+        message: NO_GROUP_FOUND,
         error: groupId,
       }
 
@@ -73,7 +73,7 @@ export class GroupService implements IGroupService {
     if (isGroupNameNotAvailable) {
       const error = {
         success: false,
-        message: GROUP_NAME_NOT_AVAILABLE_MESSAGE,
+        message: GROUP_NAME_NOT_AVAILABLE,
         error: group,
       }
 
@@ -84,7 +84,7 @@ export class GroupService implements IGroupService {
 
     const response = {
       success: true,
-      message: GROUP_CREATED_MESSAGE,
+      message: GROUP_CREATED,
       data: createdGroup,
     }
 
@@ -103,7 +103,7 @@ export class GroupService implements IGroupService {
     if (isGroupNameNotAvailable) {
       const error = {
         success: false,
-        message: GROUP_NAME_NOT_AVAILABLE_MESSAGE,
+        message: GROUP_NAME_NOT_AVAILABLE,
         error: updatedGroup,
       }
 
@@ -118,7 +118,7 @@ export class GroupService implements IGroupService {
 
     const response = {
       success: true,
-      message: GROUP_UPDATED_MESSAGE,
+      message: GROUP_UPDATED,
       data: updatedGroup,
     }
 
