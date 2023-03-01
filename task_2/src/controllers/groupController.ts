@@ -14,8 +14,8 @@ export const getAllGroups = async (req: Request, res: Response) => {
 
     res.status(result.status).json(result.response)
   } catch (error) {
-    res.status(500).json(getGenericErrorMessage(error))
     logError('GroupController', 'getAllGroups', {}, error.message)
+    res.status(500).json(getGenericErrorMessage(error))
   }
 }
 
@@ -31,8 +31,8 @@ export const getGroupById = async (req: Request, res: Response) => {
 
     res.status(result.status).json(result.response)
   } catch (error) {
-    res.status(500).json(getGenericErrorMessage(error))
     logError('GroupController', 'getGroupById', { groupId }, error.message)
+    res.status(500).json(getGenericErrorMessage(error))
   }
 }
 
@@ -56,8 +56,8 @@ export const createGroup = async (req: Request, res: Response) => {
 
     res.status(result.status).json(result.response)
   } catch (error) {
-    res.status(500).json(getGenericErrorMessage(error))
     logError('GroupController', 'createGroup', { group: schemaValidation.value }, error.message)
+    res.status(500).json(getGenericErrorMessage(error))
   }
 }
 
@@ -88,8 +88,8 @@ export const updateGroup = async (req: Request, res: Response) => {
 
     res.status(result.status).json(result.response)
   } catch (error) {
-    res.status(500).json(getGenericErrorMessage(error))
     logError('GroupController', 'updateGroup', { updatedGroup }, error.message)
+    res.status(500).json(getGenericErrorMessage(error))
   }
 }
 
@@ -105,7 +105,7 @@ export const deleteGroup = async (req: Request, res: Response) => {
 
     res.sendStatus(result.status)
   } catch (error) {
-    res.status(500).json(getGenericErrorMessage(error))
     logError('GroupController', 'deleteGroup', { groupId }, error.message)
+    res.status(500).json(getGenericErrorMessage(error))
   }
 }

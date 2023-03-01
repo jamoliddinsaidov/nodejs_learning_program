@@ -29,7 +29,6 @@ export const addUsersToGroup = async (req: Request, res: Response) => {
 
     res.status(result.status).json(result.response)
   } catch (error) {
-    res.status(500).json(getGenericErrorMessage(error))
     logError(
       'userGroupController',
       'addUsersToGroup',
@@ -39,5 +38,6 @@ export const addUsersToGroup = async (req: Request, res: Response) => {
       },
       error.message
     )
+    res.status(500).json(getGenericErrorMessage(error))
   }
 }

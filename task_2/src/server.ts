@@ -19,9 +19,6 @@ app.use('/user/', userRouter)
 app.use('/group/', groupRouter)
 app.use('/userGroup/', userGroupRouter)
 
-// middleware to log errors
-app.use(logUnhandledError)
-
 try {
   await sequelizeConnection.authenticate()
   logger.info(DB_CONNECTED)

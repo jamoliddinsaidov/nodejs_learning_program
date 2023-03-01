@@ -20,8 +20,8 @@ export const getUserById = async (req: Request, res: Response) => {
 
     res.status(result.status).json(result.response)
   } catch (error) {
-    res.status(500).json(getGenericErrorMessage(error))
     logError('UserController', 'getUserById', { userId }, error.message)
+    res.status(500).json(getGenericErrorMessage(error))
   }
 }
 
@@ -45,8 +45,8 @@ export const createUser = async (req: Request, res: Response) => {
 
     res.status(result.status).json(result.response)
   } catch (error) {
-    res.status(500).json(getGenericErrorMessage(error))
     logError('UserController', 'createUser', { user: schemaValidation.value }, error.message)
+    res.status(500).json(getGenericErrorMessage(error))
   }
 }
 
@@ -79,8 +79,8 @@ export const updateUser = async (req: Request, res: Response) => {
 
     res.status(result.status).json(result.response)
   } catch (error) {
-    res.status(500).json(getGenericErrorMessage(error))
     logError('UserController', 'updateUser', { updatedUser }, error.message)
+    res.status(500).json(getGenericErrorMessage(error))
   }
 }
 
@@ -96,8 +96,8 @@ export const deleteUser = async (req: Request, res: Response) => {
 
     res.sendStatus(result.status)
   } catch (error) {
-    res.status(500).json(getGenericErrorMessage(error))
     logError('UserController', 'deleteUser', { userId }, error.message)
+    res.status(500).json(getGenericErrorMessage(error))
   }
 }
 
@@ -113,7 +113,7 @@ export const getAutoSuggestUsers = async (req: Request, res: Response) => {
 
     res.status(result.status).json(result.response)
   } catch (error) {
-    res.status(500).json(getGenericErrorMessage(error))
     logError('UserController', 'getAutoSuggestUsers', { loginSubstring, limit }, error.message)
+    res.status(500).json(getGenericErrorMessage(error))
   }
 }
