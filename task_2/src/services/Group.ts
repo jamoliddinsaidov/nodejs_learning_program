@@ -1,12 +1,8 @@
 import { Group, IGroup } from '../models/Group.js'
 import { UserGroupService } from './UserGroup.js'
 import { sequelizeConnection } from '../data-access/config.js'
-import {
-  NO_GROUP_FOUND,
-  GROUP_NAME_NOT_AVAILABLE,
-  GROUP_CREATED,
-  GROUP_UPDATED,
-} from './constants.js'
+import { NO_GROUP_FOUND, GROUP_NAME_NOT_AVAILABLE, GROUP_CREATED, GROUP_UPDATED } from './constants.js'
+import { logService } from '../utils/index.js'
 
 interface ISuccessReponse {
   success?: boolean
@@ -38,6 +34,8 @@ interface IGroupService {
 
 export class GroupService implements IGroupService {
   async getAll() {
+    logService('GroupService', 'getAll', {})
+
     const groups = await Group.findAll()
     const response = {
       success: true,
@@ -48,6 +46,8 @@ export class GroupService implements IGroupService {
   }
 
   async getById(groupId: number) {
+    logService('GroupService', 'getById', { groupId })
+
     const group = await Group.findByPk(groupId)
 
     if (!group) {
@@ -69,6 +69,8 @@ export class GroupService implements IGroupService {
   }
 
   async create(group: IGroup) {
+    logService('GroupService', 'create', { group })
+
     const isGroupNameNotAvailable = await this.getIsGroupNameNotAvailable(group.name)
     if (isGroupNameNotAvailable) {
       const error = {
@@ -92,6 +94,8 @@ export class GroupService implements IGroupService {
   }
 
   async update(updatedGroup: IGroup) {
+    logService('GroupService', 'update', { updatedGroup })
+
     const groupId = updatedGroup.id
     const groupToBeUpdated = await this.getById(groupId)
 
@@ -126,6 +130,8 @@ export class GroupService implements IGroupService {
   }
 
   async delete(groupId: number) {
+    logService('GroupService', 'delete', { groupId })
+
     const groupToBeDeleted = await this.getById(groupId)
 
     if (groupToBeDeleted?.error) {
@@ -160,6 +166,8 @@ export class GroupService implements IGroupService {
   }
 
   async getIsGroupNameNotAvailable(targetGroupName: string) {
+    logService('GroupService', 'getIsGroupNameNotAvailable', { targetGroupName })
+
     const groups = await Group.findAll()
     const isLoginNotAvailable = groups.find((group) => group.name === targetGroupName)
 
@@ -167,6 +175,8 @@ export class GroupService implements IGroupService {
   }
 
   async getIsGroupAvailable(groupId: number) {
+    logService('GroupService', 'getIsGroupAvailable', { groupId })
+
     const group = await Group.findOne({
       attributes: ['id'],
       where: {

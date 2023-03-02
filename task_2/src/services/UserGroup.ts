@@ -1,9 +1,9 @@
-import { Op } from 'sequelize'
 import { UserGroup, IUserGroup } from '../models/UserGroup.js'
 import { sequelizeConnection } from '../data-access/config.js'
 import { INCORRECT_USED_IDS, NO_GROUP_FOUND, USER_ADDED_TO_GROUP } from './constants.js'
 import { UserService } from './User.js'
 import { GroupService } from './Group.js'
+import { logService } from '../utils/index.js'
 
 interface ISuccessReponse {
   success?: boolean
@@ -33,6 +33,8 @@ interface IUserGroupService {
 
 export class UserGroupService implements IUserGroupService {
   async addUsersToGroup(groupId: number, userIds: number[]) {
+    logService('UserGroupService', 'addUsersToGroup', { groupId, userIds })
+
     const userService = new UserService()
     const groupService = new GroupService()
 
@@ -113,6 +115,8 @@ export class UserGroupService implements IUserGroupService {
   }
 
   async updateUsersGroup(groupId: number, userIds: number[]) {
+    logService('UserGroupService', 'updateUsersGroup', { groupId, userIds })
+
     const transaction = await sequelizeConnection.transaction()
 
     try {
@@ -156,6 +160,8 @@ export class UserGroupService implements IUserGroupService {
   }
 
   async getIsUserGroupAlreadyCreated(groupId: number) {
+    logService('UserGroupService', 'getIsUserGroupAlreadyCreated', { groupId })
+
     const userGroup = await UserGroup.findOne({
       where: {
         fk_group_id: groupId,
@@ -166,6 +172,8 @@ export class UserGroupService implements IUserGroupService {
   }
 
   async deleteUserFromGroup(userId: number) {
+    logService('UserGroupService', 'deleteUserFromGroup', { userId })
+
     const query = `SELECT * FROM UserGroups WHERE '${userId}'=ANY(fk_user_ids)`
     const [userGroups] = await sequelizeConnection.query(query)
 
@@ -191,6 +199,8 @@ export class UserGroupService implements IUserGroupService {
   }
 
   async deleteGroupFromUserGroup(groupId: number) {
+    logService('UserGroupService', 'deleteGroupFromUserGroup', { groupId })
+
     await UserGroup.destroy({
       where: {
         fk_group_id: groupId,
