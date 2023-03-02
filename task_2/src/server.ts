@@ -3,7 +3,7 @@ import { sequelizeConnection } from './data-access/config.js'
 import { userRouter } from './routes/user.js'
 import { groupRouter } from './routes/group.js'
 import { userGroupRouter } from './routes/userGroup.js'
-import { logger, logUnhandledError } from './middlewares/index.js'
+import { logger } from './middlewares/index.js'
 import { DB_CONNECTED, DB_CONNECTION_FAILED, SERVER_IS_RUNNING, SERVER_IS_CLOSING } from './data-access/constants.js'
 
 const app = express()

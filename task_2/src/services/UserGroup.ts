@@ -3,7 +3,7 @@ import { sequelizeConnection } from '../data-access/config.js'
 import { INCORRECT_USED_IDS, NO_GROUP_FOUND, USER_ADDED_TO_GROUP } from './constants.js'
 import { UserService } from './User.js'
 import { GroupService } from './Group.js'
-import { logger } from '../middlewares/index.js'
+import { logService } from '../utils/index.js'
 
 interface ISuccessReponse {
   success?: boolean
@@ -29,12 +29,11 @@ interface IUserGroupService {
   getIsUserGroupAlreadyCreated: (groupId: number) => Promise<boolean>
   deleteUserFromGroup: (userId: number) => void
   deleteGroupFromUserGroup: (groupId: number) => void
-  log: (method: string, args: Object) => void
 }
 
 export class UserGroupService implements IUserGroupService {
   async addUsersToGroup(groupId: number, userIds: number[]) {
-    this.log('addUsersToGroup', { groupId, userIds })
+    logService('UserGroupService', 'addUsersToGroup', { groupId, userIds })
 
     const userService = new UserService()
     const groupService = new GroupService()
@@ -116,7 +115,7 @@ export class UserGroupService implements IUserGroupService {
   }
 
   async updateUsersGroup(groupId: number, userIds: number[]) {
-    this.log('updateUsersGroup', { groupId, userIds })
+    logService('UserGroupService', 'updateUsersGroup', { groupId, userIds })
 
     const transaction = await sequelizeConnection.transaction()
 
@@ -161,7 +160,7 @@ export class UserGroupService implements IUserGroupService {
   }
 
   async getIsUserGroupAlreadyCreated(groupId: number) {
-    this.log('getIsUserGroupAlreadyCreated', { groupId })
+    logService('UserGroupService', 'getIsUserGroupAlreadyCreated', { groupId })
 
     const userGroup = await UserGroup.findOne({
       where: {
@@ -173,7 +172,7 @@ export class UserGroupService implements IUserGroupService {
   }
 
   async deleteUserFromGroup(userId: number) {
-    this.log('deleteUserFromGroup', { userId })
+    logService('UserGroupService', 'deleteUserFromGroup', { userId })
 
     const query = `SELECT * FROM UserGroups WHERE '${userId}'=ANY(fk_user_ids)`
     const [userGroups] = await sequelizeConnection.query(query)
@@ -200,16 +199,12 @@ export class UserGroupService implements IUserGroupService {
   }
 
   async deleteGroupFromUserGroup(groupId: number) {
-    this.log('deleteGroupFromUserGroup', { groupId })
+    logService('UserGroupService', 'deleteGroupFromUserGroup', { groupId })
 
     await UserGroup.destroy({
       where: {
         fk_group_id: groupId,
       },
     })
-  }
-
-  log(method: string, args: Object) {
-    logger.info(`UserGroupService: ${method} with arguments - ${JSON.stringify(args)}`)
   }
 }
