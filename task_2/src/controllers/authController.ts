@@ -2,9 +2,13 @@ import { Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
 import { loginSchema } from '../models/schema/loginSchema.js'
 import { AuthService } from '../services/Auth.js'
-import { ACCESS_TOKEN_UPDATED } from '../services/constants.js'
 import { UserService } from '../services/User.js'
-import { ALREADY_LOGGED_OUT, JWT_COOKIE_IS_CLEARED, JWT_COOKIE_NOT_PROVIDED } from '../services/constants.js'
+import {
+  ALREADY_LOGGED_OUT,
+  JWT_COOKIE_IS_CLEARED,
+  JWT_COOKIE_NOT_PROVIDED,
+  ACCESS_TOKEN_UPDATED,
+} from '../services/constants.js'
 import { getGenericErrorMessage, logError } from '../utils/index.js'
 
 const authService = new AuthService()
@@ -35,7 +39,7 @@ export const login = async (req: Request, res: Response) => {
       data: { accessToken, refreshToken },
     } = result.response
 
-    res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'none', maxAge: 24 * 60 * 60 * 1000 })
+    res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'none', secure: true, maxAge: 24 * 60 * 60 * 1000 })
     res.status(result.status).json({
       data: { accessToken },
       success,
@@ -95,7 +99,7 @@ export const refreshToken = async (req: Request, res: Response) => {
       }
 
       const accessToken = jwt.sign({ username: user.response.data.login }, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: '30s',
+        expiresIn: '10m',
       })
 
       res.status(200).json({

@@ -295,10 +295,12 @@ export class UserService implements IUserService {
   }
 
   async updateRefreshToken(login: string, refreshToken: string) {
+    logService('UserService', 'updateRefreshToken', { login, refreshToken })
     await User.update({ refresh_token: refreshToken }, { where: { login } })
   }
 
   async deleteRefreshToken(userId: number) {
+    logService('UserService', 'deleteRefreshToken', { userId })
     await User.update({ refresh_token: null }, { where: { id: userId } })
   }
 }
