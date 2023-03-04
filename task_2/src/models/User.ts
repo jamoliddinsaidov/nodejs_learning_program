@@ -6,6 +6,7 @@ export interface IUser {
   login: string
   password: string
   age: Number
+  refresh_token?: string
   is_deleted?: boolean
   created_at?: Date
   updated_at?: Date
@@ -17,6 +18,7 @@ export class User extends Model<IUser> {
   public password: string
   public age: Number
   public is_deleted: boolean
+  public refresh_token?: string
   public created_at?: Date
   public updated_at?: Date
 }
@@ -49,6 +51,11 @@ User.init(
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: true,
+    },
+    refresh_token: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: null,
     },
   },
   {
