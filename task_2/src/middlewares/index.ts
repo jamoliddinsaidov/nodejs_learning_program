@@ -1,6 +1,6 @@
 import { logger } from './logger.js'
 import { logUnhandledError } from './logUnhandledError.js'
-import { verifyJWT } from './verifyJWT.js'
+import { auth } from './auth.js'
 import { addCredentialsHeader } from './credentials.js'
 
-export { logger, logUnhandledError, verifyJWT, addCredentialsHeader }
+export { logger, logUnhandledError, auth, addCredentialsHeader }

@@ -39,7 +39,7 @@ export const login = async (req: Request, res: Response) => {
       data: { accessToken, refreshToken },
     } = result.response
 
-    res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'none', secure: true, maxAge: 24 * 60 * 60 * 1000 })
+    res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'none', secure: true, maxAge: 86400000 })
     res.status(result.status).json({
       data: { accessToken },
       success,
@@ -52,13 +52,11 @@ export const login = async (req: Request, res: Response) => {
 }
 
 export const logout = async (req: Request, res: Response) => {
-  const cookies = req.cookies
+  const refreshToken = req?.cookies?.jwt;
 
-  if (!cookies?.jwt) {
+  if (!refreshToken) {
     return res.status(204).json({ success: true, message: ALREADY_LOGGED_OUT })
   }
-
-  const refreshToken = cookies.jwt
 
   try {
     const result = await authService.logout(refreshToken)
@@ -77,16 +75,14 @@ export const logout = async (req: Request, res: Response) => {
 }
 
 export const refreshToken = async (req: Request, res: Response) => {
-  const cookies = req.cookies
+  const refreshToken = req?.cookies?.jwt;
 
-  if (!cookies?.jwt) {
+  if (!refreshToken) {
     return res.status(401).json({ success: false, message: JWT_COOKIE_NOT_PROVIDED })
   }
 
-  const userService = new UserService()
-  const refreshToken = cookies.jwt
-
   try {
+    const userService = new UserService()
     const user = await userService.getByRefreshToken(refreshToken)
 
     if (user?.error) {

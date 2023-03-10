@@ -6,7 +6,7 @@ import { userRouter } from './routes/user.js'
 import { groupRouter } from './routes/group.js'
 import { userGroupRouter } from './routes/userGroup.js'
 import { authRouter } from './routes/auth.js'
-import { logger, verifyJWT, addCredentialsHeader } from './middlewares/index.js'
+import { logger, auth, addCredentialsHeader } from './middlewares/index.js'
 import { DB_CONNECTED, DB_CONNECTION_FAILED, SERVER_IS_RUNNING, SERVER_IS_CLOSING } from './data-access/constants.js'
 import { corsOptions } from './config/corsOptions.js'
 
@@ -22,7 +22,7 @@ app.use(cookieParser())
 // routes
 app.use('/auth', authRouter)
 
-app.use(verifyJWT)
+app.use(auth)
 app.use('/user/', userRouter)
 app.use('/group/', groupRouter)
 app.use('/userGroup/', userGroupRouter)

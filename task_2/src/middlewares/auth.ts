@@ -4,7 +4,7 @@ import dotenv from 'dotenv'
 import { AUTHORIZATION_HEADER_NOT_PROVIDED, AUTHORIZATION_TOKEN_INVALID } from '../services/constants.js'
 dotenv.config()
 
-export const verifyJWT = (req: Request, res: Response, next: NextFunction) => {
+export const auth = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers['authorization']
 
   if (!authHeader) {
