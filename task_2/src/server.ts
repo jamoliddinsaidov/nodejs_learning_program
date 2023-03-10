@@ -1,20 +1,28 @@
 import express from 'express'
+import cors from 'cors'
+import cookieParser from 'cookie-parser'
 import { sequelizeConnection } from './data-access/config.js'
 import { userRouter } from './routes/user.js'
 import { groupRouter } from './routes/group.js'
 import { userGroupRouter } from './routes/userGroup.js'
-import { logger } from './middlewares/index.js'
+import { authRouter } from './routes/auth.js'
+import { logger, auth, addCredentialsHeader } from './middlewares/index.js'
 import { DB_CONNECTED, DB_CONNECTION_FAILED, SERVER_IS_RUNNING, SERVER_IS_CLOSING } from './data-access/constants.js'
+import { corsOptions } from './config/corsOptions.js'
 
 const app = express()
 
-// built-in middleware to handle urlencoded form data
+// middlewares
+app.use(addCredentialsHeader)
+app.use(cors(corsOptions))
 app.use(express.urlencoded({ extended: false }))
-
-// built-in middleware to handle json data
 app.use(express.json())
+app.use(cookieParser())
 
 // routes
+app.use('/auth', authRouter)
+
+app.use(auth)
 app.use('/user/', userRouter)
 app.use('/group/', groupRouter)
 app.use('/userGroup/', userGroupRouter)

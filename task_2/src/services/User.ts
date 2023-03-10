@@ -1,4 +1,5 @@
 import { Op } from 'sequelize'
+import bcrypt from 'bcrypt'
 import { User, IUser } from '../models/User.js'
 import { sequelizeConnection } from '../data-access/config.js'
 import {
@@ -38,6 +39,9 @@ interface IUserService {
   autoSuggest: (loginSubstring: string, limit: number) => Promise<IUserServiceResponse>
   getIsLoginNotAvailable: (login: string) => Promise<boolean>
   getAreUsersAvailable: (userIds: number[]) => Promise<boolean>
+  getByLogin: (login: string) => Promise<IUserServiceResponse>
+  updateRefreshToken: (login: string, refreshToken: string) => void
+  deleteRefreshToken: (userId: number) => void
 }
 
 export class UserService implements IUserService {
@@ -78,6 +82,9 @@ export class UserService implements IUserService {
       return { error, status: 400 }
     }
 
+    const hashedPassword = await bcrypt.hash(user.password, 10)
+    user.password = hashedPassword
+
     const createdUser = await User.create(user)
 
     const response = {
@@ -107,6 +114,13 @@ export class UserService implements IUserService {
       }
 
       return { error, status: 400 }
+    }
+
+    const hashedPassword = await bcrypt.hash(updatedUser.password, 10)
+    updatedUser.password = hashedPassword
+
+    if (userToBeUpdated.response.data?.refresh_token) {
+      updatedUser.refresh_token = userToBeUpdated.response.data?.refresh_token
     }
 
     await User.update(updatedUser, {
@@ -224,5 +238,69 @@ export class UserService implements IUserService {
     const areTargetUsersAvailable = userIds.every((userId) => availableUserIds.includes(userId))
 
     return areTargetUsersAvailable
+  }
+
+  async getByLogin(login: string) {
+    logService('UserService', 'getByLogin', { login })
+
+    const user = await User.findOne({
+      where: {
+        login,
+      },
+    })
+
+    if (!user) {
+      const error = {
+        success: false,
+        message: NO_USER_FOUND,
+        error: login,
+      }
+
+      return { error, status: 404 }
+    }
+
+    const response = {
+      success: true,
+      data: user,
+    }
+
+    return { response, status: 200 }
+  }
+
+  async getByRefreshToken(refreshToken: string) {
+    logService('UserService', 'getByRefreshToken', { refreshToken })
+
+    const user = await User.findOne({
+      where: {
+        refresh_token: refreshToken,
+      },
+    })
+
+    if (!user) {
+      const error = {
+        success: false,
+        message: NO_USER_FOUND,
+        error: refreshToken,
+      }
+
+      return { error, status: 404 }
+    }
+
+    const response = {
+      success: true,
+      data: user,
+    }
+
+    return { response, status: 200 }
+  }
+
+  async updateRefreshToken(login: string, refreshToken: string) {
+    logService('UserService', 'updateRefreshToken', { login, refreshToken })
+    await User.update({ refresh_token: refreshToken }, { where: { login } })
+  }
+
+  async deleteRefreshToken(userId: number) {
+    logService('UserService', 'deleteRefreshToken', { userId })
+    await User.update({ refresh_token: null }, { where: { id: userId } })
   }
 }
