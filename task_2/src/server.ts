@@ -27,17 +27,21 @@ app.use('/user/', userRouter)
 app.use('/group/', groupRouter)
 app.use('/userGroup/', userGroupRouter)
 
-try {
-  await sequelizeConnection.authenticate()
-  logger.info(DB_CONNECTED)
+const start = async () => {
+  try {
+    await sequelizeConnection.authenticate()
+    logger.info(DB_CONNECTED)
 
-  const PORT = process.env.PORT || 3000
-  app.listen(PORT, () => logger.info(`${SERVER_IS_RUNNING} ${PORT}`))
-} catch (error) {
-  logger.error(`${DB_CONNECTION_FAILED} ${error}`)
-  logger.warn(SERVER_IS_CLOSING)
-  process.exit(-1)
+    const PORT = process.env.PORT || 3000
+    app.listen(PORT, () => logger.info(`${SERVER_IS_RUNNING} ${PORT}`))
+  } catch (error) {
+    logger.error(`${DB_CONNECTION_FAILED} ${error}`)
+    logger.warn(SERVER_IS_CLOSING)
+    process.exit(-1)
+  }
 }
+
+start()
 
 process
   .on('unhandledRejection', (reason, promise) => {
