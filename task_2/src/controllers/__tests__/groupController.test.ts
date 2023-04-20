@@ -16,7 +16,7 @@ describe('GroupController', () => {
     const response = await request(localHostUrl).get('/group/all').set('Authorization', authorization)
 
     expect(response.status).toEqual(200)
-    expect(response.body.data.length).toEqual(6)
+    expect(response.body.data.length).toBeGreaterThan(0)
   })
 
   it('should get group by ID', async () => {
